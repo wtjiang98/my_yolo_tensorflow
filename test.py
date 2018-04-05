@@ -199,12 +199,12 @@ def main():
     detector = Detector(yolo, weight_file)
 
     # detect from camera
-    # cap = cv2.VideoCapture(-1)
-    # detector.camera_detector(cap)
+    cap = cv2.VideoCapture(0)
+    detector.camera_detector(cap)
 
     # detect from image file
-    imname = 'test/person.jpg'
-    detector.image_detector(imname)
+    #imname = 'test/person.jpg'
+    #detector.image_detector(imname)
 
 
 if __name__ == '__main__':
