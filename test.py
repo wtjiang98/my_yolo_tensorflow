@@ -52,6 +52,7 @@ class Detector(object):
         inputs = cv2.resize(img, (self.image_size, self.image_size))
         inputs = cv2.cvtColor(inputs, cv2.COLOR_BGR2RGB).astype(np.float32)
         inputs = (inputs / 255.0) * 2.0 - 1.0
+        # 1张size*size的三通道图片
         inputs = np.reshape(inputs, (1, self.image_size, self.image_size, 3))
 
         result = self.detect_from_cvmat(inputs)[0]
@@ -203,8 +204,8 @@ def main():
     detector.camera_detector(cap)
 
     # detect from image file
-    #imname = 'test/person.jpg'
-    #detector.image_detector(imname)
+    # imname = 'test/person.jpg'
+    # detector.image_detector(imname)
 
 
 if __name__ == '__main__':

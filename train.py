@@ -63,7 +63,7 @@ class Solver(object):
         for step in range(1, self.max_iter + 1):
 
             load_timer.tic()
-            images, labels = self.data.get()
+            images, labels = self.data.get() # 这里get的是batch
             load_timer.toc()
             feed_dict = {self.net.images: images,
                          self.net.labels: labels}

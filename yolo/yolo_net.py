@@ -41,6 +41,7 @@ class YOLONet(object):
         self.images = tf.placeholder(
             tf.float32, [None, self.image_size, self.image_size, 3],
             name='images'
+
         )
         self.logits = self.build_network(
             self.images, num_outputs=self.output_size, alpha=self.alpha,
@@ -115,6 +116,7 @@ class YOLONet(object):
                     net, num_outputs, activation_fn=None, scope='fc_36')
         return net
 
+
     def calc_iou(self, boxes1, boxes2, scope='iou'):
         """calculate ious
         Args:
@@ -167,6 +169,7 @@ class YOLONet(object):
         """
         with tf.variable_scope(scope):
             # 类别向量 shape为(45, 7, 7, 20)
+            # 这里的classes是20种类型的概率值, C个条件概率: P(Class_i | Object)
             predict_classes = tf.reshape(
                 predicts[:, :self.boundary1],
                 [self.batch_size, self.cell_size, self.cell_size, self.num_class]
@@ -197,7 +200,7 @@ class YOLONet(object):
             # boxes 所在的位置坐标 shape (45, 7, 7, 2, 4)
             boxes = tf.tile(boxes, [1, 1, 1, self.boxes_per_cell, 1]) / self.image_size
 
-            # 这里的classes才是20种类型的概率值, C个条件概率: P(Class_i | Object)
+            # 对类别信息进行one-hot编码，除了实际目标类别为1，其余为0 ???
             classes = labels[..., 5:]
 
             offset = tf.reshape(
@@ -216,18 +219,19 @@ class YOLONet(object):
                  tf.square(predict_boxes[..., 3])], axis=-1
             )
 
+            # shape: batch*7*7*2
             iou_predict_truth = self.calc_iou(predict_boxes_tran, boxes)
 
             # calculate I tensor [BATCH_SIZE, CELL_SIZE, CELL_SIZE, BOXES_PER_CELL]
             # 1_obj_ij: 第i格子，第j个bbox是否有obj
             # object_mask是response加强版，在格子中细分bbox
             object_mask = tf.reduce_max(iou_predict_truth, 3, keep_dims=True)
+            # response是Pr(object)在这里把这个值乘上放进object_mask里，后面就只用考虑IoU了
             object_mask = tf.cast((iou_predict_truth >= object_mask), tf.float32) * response
 
-            # calculate no_I tensor [CELL_SIZE, CELL_SIZE, BOXES_PER_CELL]
+            # calculate no_I tensor [BATCH_SIZE, CELL_SIZE, CELL_SIZE, BOXES_PER_CELL]
             # 全1矩阵减1，剩下的1就是noobject
-            noobject_mask = tf.ones_like(
-                object_mask, dtype=tf.float32) - object_mask
+            noobject_mask = tf.ones_like(object_mask, dtype=tf.float32) - object_mask
 
             # 参数中加上平方根是对 w 和 h 进行开平方操作，原因在论文中有说明
             # shape为(4, batch_size, 7, 7, 2)
@@ -238,7 +242,7 @@ class YOLONet(object):
                  tf.sqrt(boxes[..., 3])], axis=-1
             )
 
-            # 类别损失
+            # 类别损失，predict是概率，classes是one-hot的label
             class_delta = response * (predict_classes - classes)
             class_loss = tf.reduce_mean(
                 tf.reduce_sum(tf.square(class_delta), axis=[1, 2, 3]),
@@ -257,7 +261,7 @@ class YOLONet(object):
                 tf.reduce_sum(tf.square(noobject_delta), axis=[1, 2, 3]),
                 name='noobject_loss') * self.noobject_scale
 
-            # coord_loss
+            # coord_loss，也要用到object_mask！
             coord_mask = tf.expand_dims(object_mask, 4)
             boxes_delta = coord_mask * (predict_boxes - boxes_tran)
             coord_loss = tf.reduce_mean(

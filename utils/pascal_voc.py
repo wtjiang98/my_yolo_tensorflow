@@ -26,6 +26,10 @@ class pascal_voc(object):
         self.prepare()
 
     def get(self):
+        """get batch
+        这里的label是什么格式？
+        :return:
+        """
         images = np.zeros(
             (self.batch_size, self.image_size, self.image_size, 3))
         labels = np.zeros(
