@@ -75,6 +75,12 @@ class Detector(object):
         return results
 
     def interpret_output(self, output):
+        """
+        对net output出来的7*7*20的概率和7*7*5的bbox和置信度进行运算
+        得到最终分数
+        :param output:
+        :return:
+        """
         probs = np.zeros((self.cell_size, self.cell_size,
                           self.boxes_per_cell, self.num_class))
         class_probs = np.reshape(
@@ -103,23 +109,27 @@ class Detector(object):
 
         for i in range(self.boxes_per_cell):
             for j in range(self.num_class):
+                # 最终分数 = P(class_i | object) * confidence_score
                 probs[:, :, i, j] = np.multiply(
                     class_probs[:, :, j], scales[:, :, i])
 
+        # 01索引, mask
         filter_mat_probs = np.array(probs >= self.threshold, dtype='bool')
         filter_mat_boxes = np.nonzero(filter_mat_probs)
+
         boxes_filtered = boxes[filter_mat_boxes[0],
                                filter_mat_boxes[1], filter_mat_boxes[2]]
         probs_filtered = probs[filter_mat_probs]
         classes_num_filtered = np.argmax(
             filter_mat_probs, axis=3)[
             filter_mat_boxes[0], filter_mat_boxes[1], filter_mat_boxes[2]]
-
+        # 排序得到indices
         argsort = np.array(np.argsort(probs_filtered))[::-1]
         boxes_filtered = boxes_filtered[argsort]
         probs_filtered = probs_filtered[argsort]
         classes_num_filtered = classes_num_filtered[argsort]
 
+        # 贪心地NMS算法！从最大开始，把i+1后面IOU大于阈值的删掉
         for i in range(len(boxes_filtered)):
             if probs_filtered[i] == 0:
                 continue

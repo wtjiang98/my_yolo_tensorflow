@@ -60,6 +60,7 @@ class pascal_voc(object):
     def prepare(self):
         gt_labels = self.load_labels()
         if self.flipped:
+            print(gt_labels[0]['label'])
             print('Appending horizontally-flipped training examples ...')
             gt_labels_cp = copy.deepcopy(gt_labels)
             for idx in range(len(gt_labels_cp)):
@@ -147,6 +148,7 @@ class pascal_voc(object):
                 continue
             label[y_ind, x_ind, 0] = 1
             label[y_ind, x_ind, 1:5] = boxes
+            # 这里是label的原型！5+cls_ind=1 代表这是一个one-hot编码
             label[y_ind, x_ind, 5 + cls_ind] = 1
 
         return label, len(objs)

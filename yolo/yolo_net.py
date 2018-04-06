@@ -124,6 +124,7 @@ class YOLONet(object):
           boxes2: 5-D tensor [BATCH_SIZE, CELL_SIZE, CELL_SIZE, BOXES_PER_CELL, 4] => (x_center, y_center, w, h)
         Return:
           iou: 4-D tensor [BATCH_SIZE, CELL_SIZE, CELL_SIZE, BOXES_PER_CELL]
+          这里没有极大值抑制，raw output
         """
         with tf.variable_scope(scope):
             # transform (x_center, y_center, w, h) to (x1, y1, x2, y2)
@@ -226,7 +227,7 @@ class YOLONet(object):
             # 1_obj_ij: 第i格子，第j个bbox是否有obj
             # object_mask是response加强版，在格子中细分bbox
             object_mask = tf.reduce_max(iou_predict_truth, 3, keep_dims=True)
-            # response是Pr(object)在这里把这个值乘上放进object_mask里，后面就只用考虑IoU了
+            # response是Pr(object)(是否有obj，01matrix) 在这里把这个值乘上放进object_mask里，后面就只用考虑IoU了
             object_mask = tf.cast((iou_predict_truth >= object_mask), tf.float32) * response
 
             # calculate no_I tensor [BATCH_SIZE, CELL_SIZE, CELL_SIZE, BOXES_PER_CELL]

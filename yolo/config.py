@@ -59,7 +59,7 @@ DECAY_RATE = 0.1
 
 STAIRCASE = True
 
-BATCH_SIZE = 1
+BATCH_SIZE = 10
 
 MAX_ITER = 15000
 
@@ -72,6 +72,7 @@ SAVE_ITER = 1000
 # test parameter
 #
 
+# 门槛
 THRESHOLD = 0.2
 
 IOU_THRESHOLD = 0.5
