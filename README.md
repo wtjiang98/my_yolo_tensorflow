@@ -2,9 +2,9 @@
 
 Tensorflow implementation of [YOLO](https://arxiv.org/pdf/1506.02640.pdf), including training and test phase.
 
-# 这个版本我加了注释，按照下面的方法安装后运行test.py即可实现实时目标检测
+#### 这个版本我加了注释，按照下面的方法安装后运行test.py即可实现实时目标检测
 
-# 如果帮到了您可以给我一个star
+#### 如果帮到了您，可以点击右上角给我一个star~
 
 ### Installation
 
