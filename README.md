@@ -14,25 +14,28 @@ Tensorflow implementation of [YOLO](https://arxiv.org/pdf/1506.02640.pdf), inclu
     $ cd yolo_tensorflow
 	```
 
-2. Download Pascal VOC dataset, and create correct directories
+2. Download Pascal VOC dataset, and create correct directories 下载Pascal VOC数据集，下面方法较慢的话，建议上网找
 	```Shell
 	$ ./download_data.sh
 	```
 
-3. Download [YOLO_small](https://drive.google.com/file/d/0B5aC8pI-akZUNVFZMmhmcVRpbTA/view?usp=sharing)
-weight file and put it in `data/weight`
 
-4. Modify configuration in `yolo/config.py`
+3. Download [YOLO_small](https://drive.google.com/file/d/0B5aC8pI-akZUNVFZMmhmcVRpbTA/view?usp=sharing)
+weight file and put it in `data/weight`  这个YOLO small是训练好了的参数，谷歌无法访问可以在百度下载，或者找我要。
+
+4. Modify configuration in `yolo/config.py`  这个是参数列表，建议不要动
 
 5. Training
 	```Shell
 	$ python train.py
 	```
+没有好卡建议不要train
 
 6. Test
 	```Shell
 	$ python test.py
 	```
+test里面有两种test方法，一种是用电脑摄像头，一种是通过路径输入图片。代码中后一种被注释掉了。
 
 ### Requirements
 1. Tensorflow
